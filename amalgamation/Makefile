@@ -20,7 +20,7 @@ export TPARTYDIR=`pwd`/../3rdparty
 
 # Change this to path or specify in make command
 ifndef OPENBLAS_ROOT
-    export OPENBLAS_ROOT=/usr/local/opt/openblas
+    export OPENBLAS_ROOT=/home/clewis/Inquisitor/OpenBLAS
 endif
 
 # Whether use minimum build without blas and SSE, this will make the library super slow
@@ -87,7 +87,8 @@ dmlc.d: dmlc-minimum0.cc
 
 mxnet_predict0.d: mxnet_predict0.cc nnvm.d dmlc.d
 	${CXX} ${CFLAGS} -M -MT mxnet_predict0.o \
-	-I ${MXNET_ROOT}/ -I ${TPARTYDIR}/mshadow/ -I ${TPARTYDIR}/dmlc-core/include -I ${TPARTYDIR}/dmlc-core/src \
+	-I ${MXNET_ROOT}/ -I ${TPARTYDIR}/mshadow/ \
+	-I ${TPARTYDIR}/dmlc-core/include -I ${TPARTYDIR}/dmlc-core/src \
 	-I ${TPARTYDIR}/tvm/nnvm/include \
 	-I ${MXNET_ROOT}/3rdparty/dlpack/include \
 	-I ${MXNET_ROOT}/include \
@@ -115,7 +116,7 @@ ifneq ($(ANDROID), 1)
         android:
 else
         CFLAGS+= -O3
-        LDFLAGS+= -Wl,--no-warn-mismatch -lm_hard
+        LDFLAGS+= -Wl,--no-warn-mismatch
         android: jni_libmxnet_predict.so
 endif
 

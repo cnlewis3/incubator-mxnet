@@ -30,7 +30,7 @@ namespace mxnet {
 
 DMLC_REGISTER_PARAMETER(CachedOpThreadSafeConfig);
 
-constexpr uint32_t kEidNotExist = std::numeric_limits<uint32_t>::max();
+//constexpr uint32_t kEidNotExist = std::numeric_limits<uint32_t>::max();
 
 
 struct CachedOpThreadSafe::GraphInfo {

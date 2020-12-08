@@ -33,6 +33,7 @@
 #define MSHADOW_USE_MKL     0
 #define MSHADOW_RABIT_PS    0
 #define MSHADOW_DIST_PS     0
+#define MSHADOW_INT64_TENSOR_SIZE 1
 
 #if defined(__ANDROID__) || defined(__MXNET_JS__)
 #define MSHADOW_USE_SSE         0
@@ -43,6 +44,7 @@
 #define DISABLE_OPENMP 1
 #define DMLC_LOG_STACK_TRACE 0
 
+#include "src/libinfo.cc"
 #include "src/common/utils.cc"
 
 #include "src/ndarray/ndarray_function.cc"
@@ -51,6 +53,9 @@
 #include "src/imperative/imperative.cc"
 #include "src/imperative/imperative_utils.cc"
 #include "src/imperative/cached_op.cc"
+#include "src/imperative/eliminate_common_expr_pass.cc"
+#include "src/imperative/pointwise_fusion_pass.cc"
+#include "src/imperative/cached_op_threadsafe.cc"
 
 #include "src/engine/engine.cc"
 #include "src/engine/naive_engine.cc"
@@ -71,6 +76,7 @@
 
 #include "src/operator/operator.cc"
 #include "src/operator/operator_util.cc"
+#include "src/operator/leaky_relu.cc"
 #include "src/operator/nn/activation.cc"
 #include "src/operator/nn/batch_norm.cc"
 #include "src/operator/nn/concat.cc"
@@ -78,9 +84,13 @@
 #include "src/operator/nn/deconvolution.cc"
 #include "src/operator/nn/dropout.cc"
 #include "src/operator/nn/fully_connected.cc"
-#include "src/operator/leaky_relu.cc"
+#include "src/operator/nn/layer_norm.cc"
 #include "src/operator/nn/pooling.cc"
 #include "src/operator/nn/softmax_activation.cc"
+#include "src/operator/numpy/np_elemwise_broadcast_op.cc"
+#include "src/operator/numpy/np_elemwise_broadcast_logic_op.cc"
+#include "src/operator/numpy/np_elemwise_unary_op_basic.cc"
+#include "src/operator/numpy/np_matrix_op.cc"
 #include "src/operator/softmax_output.cc"
 #include "src/operator/tensor/elemwise_binary_broadcast_op_basic.cc"
 #include "src/operator/tensor/elemwise_binary_op.cc"
@@ -89,6 +99,11 @@
 #include "src/operator/tensor/elemwise_unary_op_basic.cc"
 #include "src/operator/tensor/elemwise_unary_op_trig.cc"
 #include "src/operator/tensor/matrix_op.cc"
+#include "src/operator/tensor/indexing_op.cc"
+#include "src/operator/tensor/init_op.cc"
+
+#include "src/api/operator/ufunc_helper.cc"
+#include "src/api/operator/utils.cc"
 
 #include "src/storage/storage.cc"
 
@@ -100,4 +115,5 @@
 #include "src/c_api/c_api_ndarray.cc"
 #include "src/c_api/c_api_error.cc"
 #include "src/c_api/c_api_profile.cc"
+
 

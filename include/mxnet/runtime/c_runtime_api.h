@@ -51,6 +51,7 @@ typedef enum {
   kObjectHandle = 8U,
   kModuleHandle = 9U,
   kFuncHandle = 10U,
+  kPyArg = 10U,
   kStr = 11U,
   kBytes = 12U,
   kNDArrayContainer = 13U,

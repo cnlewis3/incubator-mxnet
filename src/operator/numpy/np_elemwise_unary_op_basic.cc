@@ -65,6 +65,28 @@ NNVM_REGISTER_OP(_np_copy)
   })
 .add_argument("a", "NDArray-or-Symbol", "The input");
 
+NNVM_REGISTER_OP(_npi_copy)
+.describe(R"code(Return an array copy of the given object.)code" ADD_FILELINE)
+.set_num_inputs(1)
+.set_num_outputs(1)
+.set_attr<mxnet::FInferShape>("FInferShape", ElemwiseShape<1, 1>)
+.set_attr<nnvm::FInferType>("FInferType", ElemwiseType<1, 1>)
+.set_attr<nnvm::FInplaceOption>("FInplaceOption",
+  [](const NodeAttrs& attrs){
+    return std::vector<std::pair<int, int> >{{0, 0}};
+  })
+.set_attr<FCompute>("FCompute<cpu>", UnaryOp::IdentityCompute<cpu>)
+.set_attr<nnvm::FInplaceIdentity>("FInplaceIdentity",
+  [](const NodeAttrs& attrs){
+    return std::vector<bool>{true};
+  })
+.set_attr<nnvm::FGradient>("FGradient", ElemwiseGradUseNone{"_copy"})
+.set_attr<nnvm::FListInputNames>("FListInputNames",
+  [](const NodeAttrs& attrs) {
+    return std::vector<std::string>{"a"};
+  })
+.add_argument("a", "NDArray-or-Symbol", "The input");
+
 #define MXNET_OPERATOR_REGISTER_NUMPY_UNARY(__name$, __input_name$, __kernel$)            \
   NNVM_REGISTER_OP(__name$)                                                               \
   .set_num_inputs(1)                                                                      \
