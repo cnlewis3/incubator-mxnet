@@ -23,7 +23,6 @@
  */
 #include "ufunc_helper.h"
 #include "utils.h"
-#include <mxnet/runtime/py_arg.h>
 #include "../../imperative/imperative_utils.h"
 #include "../../operator/tensor/elemwise_binary_scalar_op.h"
 

@@ -111,21 +111,21 @@ void ExecuteMonOutputCallback(
 MShadowTypeInfo mshadow_type_info(const int type_flag) {
   using namespace mshadow;
   switch (type_flag) {
-    case kFloat32:
+    case mshadow::kFloat32:
       return MShadowTypeInfo("float32", sizeof(float));
-    case kFloat64:
+    case mshadow::kFloat64:
       return MShadowTypeInfo("float64", sizeof(double));
-    case kFloat16:
+    case mshadow::kFloat16:
       return MShadowTypeInfo("float16", 2, sizeof(float));
-    case kUint8:
+    case mshadow::kUint8:
       return MShadowTypeInfo("uint8", sizeof(uint8_t), sizeof(index_t));
-    case kInt32:
+    case mshadow::kInt32:
       return MShadowTypeInfo("int32", sizeof(int32_t));
-    case kInt8:
+    case mshadow::kInt8:
       return MShadowTypeInfo("int8", sizeof(int8_t), sizeof(index_t));
-    case kInt64:
+    case mshadow::kInt64:
       return MShadowTypeInfo("int64", sizeof(int64_t));
-    case kBool:
+    case mshadow::kBool:
       return MShadowTypeInfo("bool", sizeof(bool), sizeof(index_t));
     default:
       LOG(FATAL) << "Unknown type flag " << type_flag;
