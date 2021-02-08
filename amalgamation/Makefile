@@ -87,7 +87,7 @@ dmlc.d: dmlc-minimum0.cc
 
 mxnet_predict0.d: mxnet_predict0.cc nnvm.d dmlc.d
 	${CXX} ${CFLAGS} -M -MT mxnet_predict0.o \
-	-I ${MXNET_ROOT}/ -I ${TPARTYDIR}/mshadow/ \
+	-I ${MXNET_ROOT}/ -I ${TPARTYDIR}/mshadow/ -I ${TPARTYDIR}/miniz/ \
 	-I ${TPARTYDIR}/dmlc-core/include -I ${TPARTYDIR}/dmlc-core/src \
 	-I ${TPARTYDIR}/tvm/nnvm/include \
 	-I ${MXNET_ROOT}/3rdparty/dlpack/include \

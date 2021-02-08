@@ -102,6 +102,7 @@ Example::
 .set_attr<nnvm::FGradient>("FGradient", MakeZeroGradNodes);
 
 MXNET_OPERATOR_REGISTER_BINARY_BROADCAST(broadcast_lesser)
+.add_alias("_npi_less")
 .describe(R"code(Returns the result of element-wise **lesser than** (<) comparison operation with broadcasting.
 
 Example::
@@ -190,6 +191,11 @@ Example::
 )code" ADD_FILELINE)
 .set_attr<FCompute>("FCompute<cpu>", BinaryBroadcastCompute<cpu, mshadow_op::logical_xor>)
 .set_attr<nnvm::FGradient>("FGradient", MakeZeroGradNodes);
+
+// MXNET_OPERATOR_REGISTER_BINARY_BROADCAST(broadcast_lesser)
+// .add_alias("_npi_less")
+// .describe(R"code(Returns the result of element-wise **lesser than** (<) comparison operation with broadcasting.)code")
+// .set_attr<nnvm::FGradient>("FGradient", MakeZeroGradNodes);
 
 }  // namespace op
 }  // namespace mxnet

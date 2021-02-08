@@ -101,7 +101,7 @@ public class ImageClassification {
         inputDesc.add(new DataDesc("data", inputShape, DType.Float32(), "NCHW"));
         Predictor predictor = new Predictor(modelPath, inputDesc, context,0);
 
-        // Prepare data
+        // Prepare data.0
         NDArray nd = Image.imRead(imagePath, 1, true);
         nd = Image.imResize(nd, 224, 224, null);
         nd = NDArray.transpose(nd, new Shape(new int[]{2, 0, 1}), null)[0];  // HWC to CHW

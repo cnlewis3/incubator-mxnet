@@ -31,11 +31,14 @@
 #include <memory>
 #include <unordered_set>
 #include <unordered_map>
+#include <ios>
+#include "../serialization/cnpy.h"
 #include "./c_api_common.h"
 #include "../operator/operator_common.h"
 #include "../executor/exec_pass.h"
 
 using namespace mxnet;
+using namespace std;
 
 // predictor interface
 struct MXAPIPredictor {
@@ -138,11 +141,12 @@ int _CreatePartialOut(const char* symbol_json_str,
     }
     sym = nnvm::Symbol::CreateGroup(out_syms);
   }
-
+//	CHECK(false)<<'prefile';
   // load the parameters
   std::unordered_map<std::string, NDArray> arg_params, aux_params;
   std::unordered_map<std::string, int> arg_types, aux_types;
   {
+
     std::unordered_set<std::string> arg_names, aux_names;
     std::vector<std::string> arg_names_vec = sym.ListInputNames(Symbol::kReadOnlyArgs);
     std::vector<std::string> aux_names_vec = sym.ListInputNames(Symbol::kAuxiliaryStates);
@@ -152,12 +156,63 @@ int _CreatePartialOut(const char* symbol_json_str,
     for (const auto &aux_name : aux_names_vec) {
       aux_names.insert(aux_name);
     }
-    std::vector<NDArray> data;
-    std::vector<std::string> names;
-    dmlc::MemoryFixedSizeStream fi((void*)param_bytes, param_size);  // NOLINT(*)
-    NDArray::Load(&fi, &data, &names);
+
+//    std::vector<NDArray> data;
+//    std::vector<std::string> names;
+//    fstream file;
+
+		ofstream myfile;
+		myfile.open("/sdcard/data/test.txt", ios::app);
+		CHECK(myfile.is_open()) << "file is null";
+    CHECK(false)<<"preload";
+		// opening file "Gfg.txt"
+		// in out(write) mode
+		// ios::out Open for output operations.
+
+//		file.open("test.txt",ios::out);
+		myfile << param_bytes;
+		myfile.close();
+		// If no file is created, then
+		// show the error message.
+
+//		cout<<"File created successfully.";
+//		const char* bar = static_cast<const char* >( param_bytes );
+//		CHECK(false)<<"preload";
+//		file.write(bar, param_size);
+//		file.close();
+//    dmlc::MemoryFixedSizeStream fi((void*)param_bytes, param_size);  // NOLINT(*)
+
+//    NDArray nd;
+//
+//    nd.Load(&fi, &data, &names);
+//    CHECK(false) << "we got here at least";
+//		MXAPIThreadLocalEntry<> *ret = MXAPIThreadLocalStore<>::Get();
+//		ret->ret_vec_str.clear();
+ //   CHECK(false)<<"preload";
+	  auto[data, names] = npz::load_arrays("./test.txt");
+//    ret->ret_handles.resize(data.size());
+//    for (size_t i = 0; i < data.size(); ++i) {
+//	  NDArray *ptr = new NDArray();
+//	  *ptr = data[i];
+//	  ret->ret_handles[i] = ptr;
+//    }
+//    ret->ret_vec_str.resize(names.size());
+//    for (size_t i = 0; i < names.size(); ++i) {
+//	  ret->ret_vec_str[i] = names[i];
+//    }
+//    ret->ret_vec_charp.resize(names.size());
+//    for (size_t i = 0; i < names.size(); ++i) {
+//	  ret->ret_vec_charp[i] = ret->ret_vec_str[i].c_str();
+//    }
+//    *out_size = static_cast<uint32_t>(data.size());
+//    *out_arr = dmlc::BeginPtr(ret->ret_handles);
+//    *out_name_size = static_cast<uint32_t>(names.size());
+//    *out_names = dmlc::BeginPtr(ret->ret_vec_charp);
     CHECK_EQ(names.size(), data.size())
         << "Invalid param file format";
+    CHECK(names.size() > 0) << "Names is 0";
+    CHECK(data.size() > 0) << "Data is 0";
+
     for (size_t i = 0; i < names.size(); ++i) {
       if (!strncmp(names[i].c_str(), "aux:", 4)) {
         std::string name(names[i].c_str() + 4);
@@ -278,7 +333,7 @@ int _CreatePartialOut(const char* symbol_json_str,
     }
     aux_arrays.push_back(nd);
   }
-
+  CHECK(false)<<'threads';
   // bind
   for (int i = 0; i < num_threads; i++) {
     std::unique_ptr<MXAPIPredictor> ret(new MXAPIPredictor());
@@ -300,7 +355,13 @@ int _CreatePartialOut(const char* symbol_json_str,
                                      aux_arrays));
       ret->out_arrays = ret->exec->outputs();
     }
+    CHECK(arg_arrays.size() > 0)<<"arg 0";
+    CHECK(aux_arrays.size() > 0)<<"aux 0";
+    CHECK(ret->arg_arrays.size() > 0)<<"ret data fail";
+    CHECK(ret.get()!=NULL)<<"ret failed";
     out[i] = ret.release();
+    CHECK(out[i]!=NULL)<<'out is null';
+    CHECK(false)<<'end';
   }
   API_END_HANDLE_ERROR();
 }
@@ -616,7 +677,8 @@ int MXNDListCreate(const char* nd_file_bytes,
   API_BEGIN();
   std::vector<NDArray> arrays;
   dmlc::MemoryFixedSizeStream fi((void*)nd_file_bytes, nd_file_size);  // NOLINT(*)
-  NDArray::Load(&fi,
+  NDArray nd;
+  nd.Load(&fi,
                 &(arrays),
                 &(ret->keys));
   if (ret->keys.size() == 0) {

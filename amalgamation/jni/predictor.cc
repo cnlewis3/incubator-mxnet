@@ -55,8 +55,10 @@ JNIEXPORT jlong JNICALL Java_org_dmlc_mxnet_Predictor_createPredictor
 
     PredictorHandle handle = 0;
     if (MXPredCreate((const char *)symbol, (const char *)params, params_len, devType, devId, (mx_uint)keys.size(), &(keys[0]), &(index[0]), &(shapes[0]), &handle) < 0) {
+//        CHECK(false)<<"PredCreate";
         jclass MxnetException = env->FindClass("org/dmlc/mxnet/MxnetException");
         env->ThrowNew(MxnetException, MXGetLastError());
+
     }
 
     env->ReleaseByteArrayElements(jsymbol, symbol, 0);
@@ -64,7 +66,7 @@ JNIEXPORT jlong JNICALL Java_org_dmlc_mxnet_Predictor_createPredictor
     for (auto& t: track) {
         env->ReleaseStringUTFChars(t.first, t.second);
     }
-
+//		CHECK(false) << "False";
     return (jlong)handle;
 }
 
@@ -97,11 +99,16 @@ JNIEXPORT jfloatArray JNICALL Java_org_dmlc_mxnet_Predictor_nativeGetOutput
     }
 
     jfloatArray joutput = env->NewFloatArray(size);
-    jfloat *out = env->GetFloatArrayElements(joutput, NULL);
+    jfloat *out = env->GetFloatArrayElements(joutput, 0);
 
     for (int i=0; i<size; i++) out[i] = data[i];
     env->ReleaseFloatArrayElements(joutput, out, 0);
-
+    CHECK(data.size() > 0) << "data is empty";
+    CHECK(env->GetArrayLength(joutput) > 0) << "joutput is empty";
+    CHECK(false);
+//			jclass MxnetException = env->FindClass("org/dmlc/mxnet/MxnetException");
+//			env->ThrowNew(MxnetException, MXGetLastError());
+//		}
     return joutput;
 }
 

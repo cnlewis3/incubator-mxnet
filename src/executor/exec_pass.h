@@ -22,8 +22,8 @@
  * \file exec_pass.h
  * \brief All the execution related pass and data structures.
  */
-#ifndef MXNET_EXECUTOR_EXEC_PASS_H_
-#define MXNET_EXECUTOR_EXEC_PASS_H_
+#ifndef MXNET_IMPERATIVE_EXEC_PASS_H_
+#define MXNET_IMPERATIVE_EXEC_PASS_H_
 
 #include <mxnet/base.h>
 #include <mxnet/ndarray.h>
@@ -204,22 +204,14 @@ Graph DetectInplaceAddTo(Graph g);
 Graph EliminateCommonExpr(Graph && g);
 
 /*!
- * \brief Fuse pointwise operations in the forward pass.
+ * \brief Fuse pointwise operations in the graph.
  *
  * \param g input graph (needs to be entire graph, not just forward part)
+ * \param num_forward_outputs number of outputs in the graph produced by the forward pass
  *
- * \return graph with fused pointwise operations in the forward pass
+ * \return copy of the graph with fused pointwise operations
  */
-Graph FusePointwiseForward(Graph&& g);
-
-/*!
- * \brief Fuse pointwise operations in the backward pass.
- *
- * \param g input graph (needs to be entire graph, not just forward part)
- *
- * \return graph with fused pointwise operations in the backward pass
- */
-Graph FusePointwiseBackward(Graph&& g);
+Graph FusePointwise(const Graph& g, const size_t num_forward_outputs);
 
 /*!
  * \brief Issue a one-time warning that fusion is not possible for this platform or build.
@@ -273,16 +265,17 @@ namespace pass {
 /*!
  * \brief Get the gradient graph whose outputs are gradients of xs wrt to ys.
  * \param graph The input graph.
- * \param ys The entries we want to take gradient from.
- * \param xs The input to take gradient with respect to.
- * \param ys_out_grad The symbol for additional gradient to be propagate back to y.
- * \param aggregate_fun Aggregation function applied to aggregate the inputs.
- * \param mirror_fun Optional mirror function to do mirror optimization and save memory.
- * \param attr_hint_fun Optional, hint function to output a node that like src, but its attr is same as like.
- * \param zero_ops Optional, list of operators that outputs a single zero array. The first one
- *  must be zeros_like.
- * \param copy_op_str Optional, name of the copy operation required to handle duplicates
- *  on the edge of the graph
+ * \param ys The entries to take gradient from.
+ * \param xs The entries to take gradient with respect to.
+ * \param ys_out_grad The output gradients of ys.
+ * \param aggregate_fun The aggregation function used for summing gradients.
+ * \param mirror_fun The backward mirroring function that does mirroring to save memory.
+ * \param zero_ops The list of operators that output a single zero array, used
+ *                 for generating zero gradient nodes. The first operator must
+ *                 be zero_like.
+ * \param copy_op_str The name of the copy operator that handle gradient duplicates.
+ * \param in_arg_shapes The shapes of input arguments, used for shape inference.
+ * \param in_arg_dtpyes The data types of input arguments, used for data type inference.
  * \return A new graph, whose outputs correspond to inputs of xs.
  */
 inline Graph MXGradient(
@@ -292,31 +285,31 @@ inline Graph MXGradient(
     std::vector<NodeEntry> ys_out_grad,
     std::function<NodeEntry(std::vector<NodeEntry>&& inputs)> aggregate_fun = nullptr,
     std::function<int(const Node& node)> mirror_fun = nullptr,
-    std::function<NodeEntry(const NodeEntry& src, const NodeEntry &like)>
-    attr_hint_fun = nullptr,
     std::vector<const Op*> zero_ops = std::vector<const Op*>(),
-    std::string copy_op_str = std::string()) {
+    std::string copy_op_str = std::string(),
+    mxnet::ShapeVector in_arg_shapes = mxnet::ShapeVector(),
+    DTypeVector in_arg_dtypes = DTypeVector()) {
   graph.attrs["grad_ys"] = std::make_shared<any>(std::move(ys));
   graph.attrs["grad_xs"] = std::make_shared<any>(std::move(xs));
   graph.attrs["grad_ys_out_grad"] = std::make_shared<any>(std::move(ys_out_grad));
+  graph.attrs["in_arg_shapes"] = std::make_shared<any>(std::move(in_arg_shapes));
+  graph.attrs["in_arg_dtypes"] = std::make_shared<any>(std::move(in_arg_dtypes));
+
   if (aggregate_fun != nullptr) {
     graph.attrs["grad_aggregate_fun"] = std::make_shared<any>(aggregate_fun);
   }
   if (mirror_fun != nullptr) {
-    graph.attrs["grad_mirror_fun"] = std::make_shared<any>(mirror_fun);
-  }
-  if (attr_hint_fun != nullptr) {
-    graph.attrs["attr_hint_fun"] = std::make_shared<any>(attr_hint_fun);
+    graph.attrs["mirror_fun"] = std::make_shared<any>(mirror_fun);
   }
   if (zero_ops.size()) {
     graph.attrs["zero_ops"] = std::make_shared<any>(std::move(zero_ops));
   }
   if (copy_op_str != std::string()) {
-      graph.attrs["copy_op"] = std::make_shared<any>(std::move(copy_op_str));
+    graph.attrs["copy_op_str"] = std::make_shared<any>(std::move(copy_op_str));
   }
   return ApplyPass(std::move(graph), "MXGradient");
 }
 }  // namespace pass
 }  // namespace nnvm
 
-#endif  // MXNET_EXECUTOR_EXEC_PASS_H_
+#endif  // MXNET_IMPERATIVE_EXEC_PASS_H_

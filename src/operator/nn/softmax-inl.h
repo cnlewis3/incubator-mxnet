@@ -791,7 +791,7 @@ void SoftmaxCompute(const nnvm::NodeAttrs& attrs,
 
   MXNET_REAL_ACC_TYPE_SWITCH(inputs[0].type_flag_, DType, AType, {
     MSHADOW_REAL_TYPE_SWITCH(outputs[0].type_flag_, OType, {
-      int type = kInt32;
+      int type = mshadow::kInt32;
       if (param.use_length.value()) {
         CHECK(inputs.size() > 1)
           << "Mask needs to be provided when using softmax with use_length=True.";
@@ -849,7 +849,7 @@ void SoftmaxGradCompute(const nnvm::NodeAttrs& attrs,
     });
   }
   if (req[0] == kNullOp) return;
-  const int itype = softmax_use_length(attrs) ? inputs[2].type_flag_ : kInt32;
+  const int itype = softmax_use_length(attrs) ? inputs[2].type_flag_ : mshadow::kInt32;
   const SoftmaxParam& param = nnvm::get<SoftmaxParam>(attrs.parsed);
   int axis = CheckAxis(param.axis, inputs[0].ndim());
   const double temperature = param.temperature.has_value() ?

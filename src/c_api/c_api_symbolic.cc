@@ -1402,21 +1402,14 @@ int MXOptimizeForBackend(SymbolHandle sym_handle,
         exec::ContextVector(indexed_graph.num_nodes(), default_ctx));
 
     // infer shapes
-    g = exec::InferShape(std::move(g), std::move(arg_shapes), "__shape__");
-    // infer dtypes
-    g = exec::InferType(std::move(g), std::move(arg_dtypes), "__dtype__");
-    if (g.GetAttr<size_t>("dtype_num_unknown_nodes") != 0U) {
-      common::HandleInferTypeError(num_forward_inputs, indexed_graph,
-                                   g.GetAttr<nnvm::DTypeVector>("dtype"));
-    }
-    // infer stypes
-    g = exec::InferStorageType(std::move(g), std::move(arg_stypes), "__storage_type__");
-    if (g.GetAttr<size_t>("storage_type_num_unknown_nodes") != 0U) {
-      common::HandleInferStorageTypeError(num_forward_inputs, indexed_graph,
-                                          g.GetAttr<StorageTypeVector>("storage_type"));
-    }
+	g = exec::InferShape(std::move(g), std::move(arg_shapes), "__shape__");
+	// infer dtypes
+	g = exec::InferType(std::move(g), std::move(arg_dtypes), "__dtype__");
+	// infer stypes
+	g = exec::InferStorageType(std::move(g), std::move(arg_stypes), "__storage_type__");
+
     // set args/aux as attributes on graph so that subgraph property can use them
-    std::vector<std::string> arg_names = sym->ListInputNames(nnvm::Symbol::kReadOnlyArgs);
+    std::vector<std::string> arg_names = s->ListInputNames(nnvm::Symbol::kReadOnlyArgs);
     g.attrs["in_args"] = std::make_shared<nnvm::any>(in_args_ptr);
     g.attrs["in_arg_names"] = std::make_shared<nnvm::any>(arg_names);
 

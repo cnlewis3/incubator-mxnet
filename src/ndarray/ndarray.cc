@@ -1974,17 +1974,22 @@ void NDArray::Save(dmlc::Stream* fo,
 void NDArray::Load(dmlc::Stream* fi,
                    std::vector<NDArray>* data,
                    std::vector<std::string>* keys) {
-  uint64_t header, reserved;
+  uint32_t header, reserved;
   CHECK(fi->Read(&header))
       << "Invalid NDArray file format";
   CHECK(fi->Read(&reserved))
       << "Invalid NDArray file format";
-  CHECK(header == kMXAPINDArrayListMagic)
-      << "Invalid NDArray file format";
+  CHECK(header == 0x04034b50 || header == 0x504b0304) << "Not npz header";
+//  CHECK(header == 0x4d554e93 || header == 0x934e554d) << "Not npy header";
+//  CHECK(header == kMXAPINDArrayListMagic)
+//      << header;
+
   CHECK(fi->Read(data))
       << "Invalid NDArray file format";
-  CHECK(fi->Read(keys))
+  CHECK(false) << "we got here at least";
+  CHECK(fi->Read(keys, sizeof(keys)))
       << "Invalid NDArray file format";
+
   CHECK(keys->size() == 0 || keys->size() == data->size())
       << "Invalid NDArray file format";
 }

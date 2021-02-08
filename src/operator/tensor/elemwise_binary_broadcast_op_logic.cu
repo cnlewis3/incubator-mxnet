@@ -41,9 +41,6 @@ NNVM_REGISTER_OP(broadcast_greater)
 NNVM_REGISTER_OP(broadcast_greater_equal)
 .set_attr<FCompute>("FCompute<gpu>", BinaryBroadcastCompute<gpu, mshadow_op::ge>);
 
-NNVM_REGISTER_OP(broadcast_lesser)
-.set_attr<FCompute>("FCompute<gpu>", BinaryBroadcastCompute<gpu, mshadow_op::lt>);
-
 NNVM_REGISTER_OP(broadcast_lesser_equal)
 .set_attr<FCompute>("FCompute<gpu>", BinaryBroadcastCompute<gpu, mshadow_op::le>);
 

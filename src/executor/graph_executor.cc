@@ -375,7 +375,7 @@ nnvm::Graph GraphExecutor::InitFullGraph(nnvm::Symbol symbol,
   // take gradient
   nnvm::Graph g_grad = nnvm::pass::MXGradient(
       g, symbol.outputs, xs, head_grad_entry_,
-      AggregateGradient, need_mirror, nullptr,
+      AggregateGradient, need_mirror,
       zero_ops, "_copy");
   CHECK_EQ(g_grad.outputs.size(), xs.size());
   for (const auto &e : g_grad.outputs) {
